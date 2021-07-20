@@ -46,6 +46,13 @@ public class HelloWorldPropertyConfiguration {
 ```
 
 ### Docker build  
+Docker file exposes two env variables
+```
+ENV FRONTEND_BASEURIS_0=willbeoverritten
+ENV FRONTEND_BASEURIS_1=willbeoverritten
+ 
+```
+
 `docker build -t helloworld-sb-image -f DockerFile .`
 
 ### Docker run
