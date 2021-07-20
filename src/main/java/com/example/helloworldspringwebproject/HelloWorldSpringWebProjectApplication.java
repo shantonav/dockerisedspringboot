@@ -23,7 +23,6 @@ public class HelloWorldSpringWebProjectApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        //.allowedOrigins("","");
                 .allowedOrigins( frontEndPropConfig.getBaseUris().toArray( baseUris ) );
             }
         };

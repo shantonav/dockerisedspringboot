@@ -2,6 +2,48 @@
 
 ### This app demonstrates how we can dockerise a spring boot app and pass array type env variables
 
+### Spring app config
+
+```
+frontend.baseUris[0]=unknown
+frontend.baseUris[1]=unknown
+```
+
+### Property bean config
+
+```
+ @ConfigurationProperties( prefix = "frontend")
+public class HelloWorldPropertyConfiguration {
+    private List<String>  baseUris;
+
+    public List<String> getBaseUris() {
+        return baseUris;
+    }
+
+    public void setBaseUris(List<String> baseUris) {
+        this.baseUris = baseUris;
+    }
+} 
+```
+
+### Property config injection
+
+```
+@EnableConfigurationProperties(HelloWorldPropertyConfiguration.class )
+....
+
+ @Bean
+    public WebMvcConfigurer corsConfigurer(HelloWorldPropertyConfiguration frontEndPropConfig) {
+        String[] baseUris = new String[ frontEndPropConfig.getBaseUris().size() ];
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                .allowedOrigins( frontEndPropConfig.getBaseUris().toArray( baseUris ) );
+            }
+        };
+    } 
+```
 
 ### Docker build  
 `docker build -t helloworld-sb-image -f DockerFile .`
