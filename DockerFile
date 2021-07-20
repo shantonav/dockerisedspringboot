@@ -1,0 +1,11 @@
+#
+# Package stage
+#
+FROM openjdk:11-jre-slim
+COPY  ./target/HelloWorldSpringWebProject-*.jar /usr/local/lib/app.jar
+
+ENV FRONTEND_BASEURIS_0=willbeoverritten
+ENV FRONTEND_BASEURIS_1=willbeoverritten
+EXPOSE 2200
+ENTRYPOINT ["java","-jar","/usr/local/lib/app.jar"]
+
