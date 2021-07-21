@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.View;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -61,21 +62,67 @@ public class HelloWorldController {
 
     }
 
-    private static Map<String, String> actionToViewMapping = new HashMap<>();
+    private static Map<String, ViewData> actionToViewMapping = new HashMap<>();
+
+    private static class ViewData{
+        private String nextView;
+        private String data;
+
+        private ViewData(String nextView, String data) {
+            this.nextView = nextView;
+            this.data = data;
+        }
+
+        private String getNextView() {
+            return nextView;
+        }
+
+        private String getData() {
+            return data;
+        }
+
+        public void setData(String data) {
+            this.data = data;
+        }
+    }
 
     static {
-        actionToViewMapping.put("start", "job");
-        actionToViewMapping.put("job", "profile");
-        actionToViewMapping.put("profile", "job");
+        actionToViewMapping.put("start", new ViewData("job",  null)) ;
+        actionToViewMapping.put("job", new ViewData("profile",  null));
+        actionToViewMapping.put("profile", new ViewData("job",  null));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ViewResponse decideNextView(@RequestBody ViewRequest viewRequest) {
-        String nextViewName = actionToViewMapping.get( viewRequest.getAction() );
+
+        String currentView = viewRequest.getAction();
+        String nextViewName = actionToViewMapping.get( currentView ).getNextView();
 
         log.info( "{} has this data {}", viewRequest.getAction(), viewRequest.getData() );
-        String data = " This is " +  nextViewName + "'s data";
+        String nextViewzData = " This is " +  nextViewName + "'s data";
 
-        return  new ViewResponse(viewRequest.getAction(), data, nextViewName );
+        if ( viewRequest.getData() != null ){ //if current's view has data has changed set it
+            actionToViewMapping.get( currentView ).setData( viewRequest.getData() ) ;
+        }
+
+        if ( actionToViewMapping.get( nextViewName ).getData() != null ){ // if nextView has changed data stored get that
+            nextViewzData  = actionToViewMapping.get( nextViewName ).getData();
+        }
+
+        return  new ViewResponse( currentView, nextViewzData, nextViewName );
     }
+
+    @PostMapping(value= "/goback", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ViewResponse decidePreviousView(@RequestBody ViewRequest viewRequest) {
+        String lastView = viewRequest.getAction();
+
+        log.info( "{} has this last view's data  {}", lastView, viewRequest.getData() );
+        String data = actionToViewMapping.get( lastView ).getData() ; // get the last saved data for the last view
+        String nextView = actionToViewMapping.get( lastView ).getNextView();
+
+        actionToViewMapping.get( nextView ).setData( viewRequest.getData() ); // before going back capture the state of the current view
+
+        return  new ViewResponse( lastView, data, nextView );
+    }
+
 }
