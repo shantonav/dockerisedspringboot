@@ -2,6 +2,9 @@
 # Package stage
 #
 FROM openjdk:11-jre-slim
+
+RUN apt-get update   && apt-get install -y curl
+
 COPY  ./target/HelloWorldSpringWebProject-*.jar /usr/local/lib/app.jar
 
 ENV FRONTEND_BASEURIS_0=willbeoverritten

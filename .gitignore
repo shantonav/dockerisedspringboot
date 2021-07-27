@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### K8s ###
+*kube*
+
 ### STS ###
 .apt_generated
 .classpath

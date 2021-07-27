@@ -1,1 +1,6 @@
+GET http://10.102.10.173:2200/hello/version
+
+
+###
 GET http://localhost:2200/hello/helloWorld?inputName=shantonav
+
